@@ -1,5 +1,5 @@
 import React from "react"
-import { useStaticQuery, graphql } from "gatsby"
+import { graphql, StaticQuery } from "gatsby"
 import Img from "gatsby-image"
 
 /*
@@ -13,20 +13,51 @@ import Img from "gatsby-image"
  * - `useStaticQuery`: https://www.gatsbyjs.org/docs/use-static-query/
  */
 
-const Image = () => {
-  const data = useStaticQuery(graphql`
-    query {
-      placeholderImage: file(relativePath: { eq: "gatsby-astronaut.png" }) {
-        childImageSharp {
-          fluid(maxWidth: 300) {
-            ...GatsbyImageSharpFluid
-          }
+const imagesQuery = graphql`
+    query Images {
+        allFile(
+            filter: {
+                extension: { regex: "/jpeg|jpg|gif|png/" }
+                sourceInstanceName: { eq: "images" }
+            }
+        ) {
+            edges {
+                node {
+                    name
+                    childImageSharp {
+                        fluid(maxWidth: 300) {
+                          ...GatsbyImageSharpFluid
+                        }
+                    }
+                }
+            }
         }
-      }
     }
-  `)
+`;
 
-  return <Img fluid={data.placeholderImage.childImageSharp.fluid} />
-}
+const Images = ({ children }) => (
+    <StaticQuery query={imagesQuery}>
+        {({ allFile: { edges } }) =>
+            children(
+                edges.reduce(
+                    (allImages, edge) => ({
+                        ...allImages,
+                        [edge.node.name]: edge.node.childImageSharp,
+                    }),
+                    {}
+                )
+            )
+        }
+    </StaticQuery>
+);
 
-export default Image
+// TODO: Context? This will load all images for every image.
+const Image = ({ src }) => (
+    <Images>
+        { images => (
+            <Img fluid={images[src].fluid} />
+        )}
+    </Images>
+);
+
+export default Image;

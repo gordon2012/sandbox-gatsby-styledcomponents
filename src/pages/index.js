@@ -18,7 +18,7 @@ const IndexPage = () => (
     <p>Welcome to your new Gatsby site.</p>
     <p>Now go build something great.</p>
     <ImageWrap>
-      <Image />
+      <Image src="gatsby-astronaut"/>
     </ImageWrap>
     <Link to="/page-2/">Go to page 2</Link>
   </Layout>
